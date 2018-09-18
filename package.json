@@ -1,0 +1,29 @@
+{
+  "name": "mongoScraper",
+  "version": "1.0.0",
+  "description": "Building a web scraper with MongoDB and cheerio npm to grab articles from another website.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImpunityJainne/mongoScraper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ImpunityJainne/mongoScraper/issues"
+  },
+  "homepage": "https://github.com/ImpunityJainne/mongoScraper#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "mongojs": "^2.6.0",
+    "mongoose": "^5.2.15",
+    "request": "^2.88.0"
+  }
+}
