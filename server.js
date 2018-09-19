@@ -4,6 +4,7 @@
   var exphbs  = require('express-handlebars');
   var mongojs = require("mongojs");
   var bodyParser = require('body-parser')
+  var logger = require("morgan");
   const mongoose = require('mongoose');
   // Require request and cheerio. This makes the scraping possible
   var request = require("request");
@@ -19,14 +20,16 @@
   app.engine('handlebars', exphbs({defaultLayout: 'main'}));
   app.set('view engine', 'handlebars');
 
+  // Use morgan logger for logging requests
+  app.use(logger("dev"));
   // parse application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({ extended: true }));
   // parse application/json
   app.use(bodyParser.json());
 
   // Database configuration 
-  var databaseUrl = "mongoScraperDB";
-  var collections = ["articles"];
+  var databaseUrl = "scraper";
+  var collections = ["scrapedData"];
 
   // Hook mongojs configuration to the db variable
   var db = mongojs(databaseUrl, collections);
@@ -52,7 +55,7 @@ app.get("/", function(req, res) {
 // Retrieve data from the db
 app.get("/all", function(req, res) {
   // Find all results from the collection in the db
-  db.articles.find({}, function(error, found) {
+  db.scrapedData.find({}, function(error, found) {
     // Throw any errors to the console
     if (error) {
       console.log(error);
@@ -66,20 +69,22 @@ app.get("/all", function(req, res) {
 
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function(req, res) {
-  // Make a request for the news section of `ycombinator`
-  request("https://medium.freecodecamp.org/", function(error, response, html) {
+  // Make a request for web developers on craigslist
+  request("https://austin.craigslist.org/search/jjj?query=web+developer&sort=rel", function(error, response, html) {
+
     // Load the html body from request into cheerio
     var $ = cheerio.load(html);
+
     // For each element with a "title" class
-    $(".js-trackedPost").each(function(i, element) { // [] This data isn't being scraped currently. I need to figure this out. Maybe go back to the first homework today where scraping is demonstrated. to see if I have the elements right.
+    $(".result-row").each(function(i, element) { // [] This data isn't being scraped currently. I need to figure this out. Maybe go back to the first homework today where scraping is demonstrated. to see if I have the elements right.
       // Save the text and href of each link enclosed in the current element
-      var title = $(element).children("h3").text();
-      var link = $(element).children("a").attr("href");
+      var title = $(element).find("p > a").text();
+      var link = $(element).find("p > a").attr("href");
 
       // If this found element had both a title and a link
       if (title && link) {
-        // Insert the data in the articles db
-        db.articles.insert({
+        // Insert the data in the scrapedData db
+        db.scrapedData.insert({
           title: title,
           link: link
         },
@@ -104,5 +109,5 @@ app.get("/scrape", function(req, res) {
 
 // Listen on port 3000
 app.listen(3000, function() {
-  console.log("App running on port 3000. To open, Ctrl-click on http://localhost:3000.");
+  console.log("App running on port 3000.");
 });
